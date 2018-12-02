@@ -803,6 +803,13 @@ Begin by typing
     _+_ : ℕ → ℕ → ℕ
     m + n = ?
 
+\begin{code}
+_+[_ : ℕ → ℕ → ℕ
+zero +[ n = n
+suc m +[ n = suc (m +[ n)
+\end{code}
+
+
 The question mark indicates that you would like Agda to help with
 filling in that part of the code. If you type `C-c C-l` (pressing
 the control key while hitting the `c` key followed by the `l` key)
@@ -838,6 +845,7 @@ required type of each.
 
     ?0 : ℕ
     ?1 : ℕ
+
 
 Going into hole 0 and type `C-c C-,` will display information on the
 required type of the hole, and what free variables are available.
@@ -921,6 +929,41 @@ data Bin : Set where
   nil : Bin
   x0_ : Bin → Bin
   x1_ : Bin → Bin
+
+
+inc : Bin → Bin
+inc nil = x1 nil
+inc (x0 n) = x1 n
+inc (x1 n) = x0 (inc n)
+
+incTest : inc (x1 x1 x0 x1 nil) ≡ x0 x0 x1 x1 nil
+incTest = refl
+
+to : ℕ → Bin
+to zero = x0 nil
+to (suc n) = inc (to n)
+
+from : Bin → ℕ
+from b = go 0 b
+  where
+    go : ℕ → Bin → ℕ
+    go i nil = 0
+    go i (x0 n) = 0 + go (i + 1) n
+    go i (x1 n) = 2 ^ i + go (i + 1) n
+
+testn1 : from (x1 (nil)) ≡ 1
+testn1 = refl
+
+testn2 : from (x0 (x1 (nil))) ≡ 2
+testn2 = refl
+
+testn3 : from (x1 (x1 (x0 (nil)))) ≡ 3
+testn3 = refl
+
+testn4 : from ((x0 (x0 (x1 (nil))))) ≡ 4
+testn4 = refl
+
+
 \end{code}
 For instance, the bitstring
 
@@ -967,7 +1010,7 @@ them, and basic operators upon them, are defined in the standard
 library module `Data.Nat`.
 
 \begin{code}
--- import Data.Nat using (ℕ; zero; suc; _+_; _*_; _^_; _∸_)
+import Data.Nat using (ℕ; zero; suc; _+_; _*_; _^_; _∸_)
 \end{code}
 
 Normally, we will show an import as running code, so Agda will
