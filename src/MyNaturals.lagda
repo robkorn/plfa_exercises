@@ -7,7 +7,7 @@ next      : /Induction/
 ---
 
 \begin{code}
-module Naturals where
+module MyNaturals where
 \end{code}
 
 The night sky holds more stars than I can count, though fewer than five

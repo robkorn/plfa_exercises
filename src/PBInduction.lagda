@@ -860,6 +860,14 @@ you will need to formulate and prove suitable lemmas.
 
 
 \begin{code}
+
+lemma1 : ∀ (m n : ℕ) -> n + n * m ≡ n * suc m
+lemma1 m zero = refl
+lemma1 m (suc n) rewrite (sym (lemma1 m n))| +-swap m n (n * m) = refl
+
+*-comm : ∀ (m n : ℕ) -> m * n ≡ n * m
+*-comm zero n rewrite multZeroLemma n = refl
+*-comm (suc m) n rewrite *-comm m n | lemma1 m n = refl
 \end{code}
 
 #### Exercise `0∸n≡0` {#zero-monus}
@@ -870,8 +878,14 @@ Show
 
 for all naturals `n`. Did your proof require induction?
 
-
 \begin{code}
+
+zero-monus : ∀ (n : ℕ) -> zero ∸ n ≡ zero
+zero-monus zero = refl
+zero-monus (suc n) = refl
+
+zero-monus' : ∀ (n : ℕ) -> zero ∸ n ≡ zero
+zero-monus' n rewrite zero-monus n = refl
 \end{code}
 
 #### Exercise `∸-+-assoc` {#monus-plus-assoc}
@@ -883,11 +897,21 @@ Show that monus associates with addition, that is,
 for all naturals `m`, `n`, and `p`.
 
 \begin{code}
+
+nzero : ∀ (n : ℕ) -> n + zero ≡ n
+nzero zero = refl
+nzero (suc n) = cong suc (nzero n)
+
+monus-plus-assoc : ∀ (m n p : ℕ) -> m ∸ n ∸ p ≡ m ∸ (n + p)
+monus-plus-assoc m n zero rewrite nzero n = refl
+monus-plus-assoc zero n (suc p) rewrite zero-monus n | zero-monus (n + suc p) = refl
+monus-plus-assoc (suc m) zero (suc p) = refl
+monus-plus-assoc (suc m) (suc n) (suc p) = monus-plus-assoc m n (suc p)
 \end{code}
 
 #### Exercise `Bin-laws` (stretch) {#Bin-laws}
 
-Recall that 
+Recall that
 Exercise [Bin][plfa.Naturals#Bin]
 defines a datatype of bitstrings representing natural numbers
 \begin{code}
@@ -910,6 +934,28 @@ over bitstrings.
     from (to n) ≡ n
 
 For each law: if it holds, prove; if not, give a counterexample.
+
+\begin{code}
+
+inc : Bin → Bin
+inc nil = x1 nil
+inc (x0 n) = x1 n
+inc (x1 n) = x0 (inc n)
+
+to : ℕ → Bin
+to zero = x0 nil
+to (suc n) = inc (to n)
+
+from : Bin → ℕ
+from b = go 0 b
+  where
+    go : ℕ → Bin → ℕ
+    go i nil = 0
+    go i (x0 n) = 0 + go (i + 1) n
+    go i (x1 n) = 2 Data.Nat.^ i + go (i + 1) n
+
+
+\end{code}
 
 
 ## Standard library
